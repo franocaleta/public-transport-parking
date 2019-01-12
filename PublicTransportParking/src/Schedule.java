@@ -65,19 +65,18 @@ public class Schedule {
 
     public double g1min1() {
         double different_neighbours = 0.0;
-        for (int i = 0; i < this.trake.size() - 1; i++) {
-            Track first = null;
-            Track second = null;
-            while ((first = this.trake.get(i)).getVozilaUOvojTraci().isEmpty()) {
-                i += 1;
-            }
-            int j = i + 1;
-            while ((second = this.trake.get(j)).getVozilaUOvojTraci().isEmpty()) {
-                j += 1;
-            }
-            if (first.getVehicleTypeContaining() != second.getVehicleTypeContaining())
-                different_neighbours++;
+
+        List<Track> trakeSVozilima = trake.stream()
+                .filter(track -> !track.getVozilaUOvojTraci().isEmpty())
+                .collect(Collectors.toList());
+
+        for (int i = 0; i < trakeSVozilima.size() - 1; i++) {
+            int serijaOve = trakeSVozilima.get(i).getVozilaUOvojTraci().get(0).serijaVozila;
+            int serijaSljedece = trakeSVozilima.get(i + 1).getVozilaUOvojTraci().get(0).serijaVozila;
+
+            if (serijaOve != serijaSljedece) different_neighbours++;
         }
+
         return different_neighbours / (this.trake.size() - getNumberOfEmptyTracks());
     }
 
@@ -91,10 +90,10 @@ public class Schedule {
 
     public double g3min3() {
         double sumNeiskoristenogProstoraTraka = trake.stream().mapToDouble(Track::unusedCapacity).sum();
-        double sumSvihDuljinatraka = trake.stream().mapToDouble(t -> t.duljinaTrake).sum();
-        double sumVozila = vehicles.stream().mapToDouble(v -> v.duljinaVozila).sum();
+        double sumSvihDuljinaTraka = trake.stream().mapToDouble(t -> t.duljinaTrake).sum();
+        double sumDuljinaVozila = vehicles.stream().mapToDouble(v -> v.duljinaVozila).sum();
 
-        return sumNeiskoristenogProstoraTraka / (sumSvihDuljinatraka - sumVozila);
+        return sumNeiskoristenogProstoraTraka / (sumSvihDuljinaTraka - sumDuljinaVozila);
     }
 
     public double firstGlobalGoal() {
