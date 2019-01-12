@@ -5,18 +5,34 @@ import java.util.stream.IntStream;
 
 public class Demo {
 
+    public static Data data;
     public static void main(String[] args) {
-        Data data = new Data("instanca1.txt");
+        data = new Data("instanca1.txt");
 
         Schedule schedule = new Schedule(
                 data.getAllTracks(),
                 data.getAllVehicles(),
-                data.getTracksThatBlockOtherTracks());
+                data.getTracksThatBlockOtherTracks(),
+                data.getTracksBlockedByOtherTracks());
 
-        schedule.printScheduleToFile("res-1m-i1");
-        schedule.debbugFunkcije();
+      //  schedule.printScheduleToFile("res-1m-i1");
+      //  schedule.debbugFunkcije();
 
-//        List<Schedule> populacija = fillPopulation(data, 1000);
+        double fitnessMax = 0.0;
+        Schedule sce = null;
+        List<Schedule> populacija = fillPopulation(data, 20);
+        for(Schedule sc : populacija) {
+            System.out.println(sc.isInvalid());
+            if(sc.fitness() > fitnessMax) {
+                fitnessMax = sc.fitness();
+                sce  = sc;
+            }
+        }
+        SimulatedAnnealing simulatedAnnealing = new SimulatedAnnealing(sce);
+      //  simulatedAnnealing.run();
+    //    sce.debbugFunkcije();
+   //     sce.printScheduleToFile("rjesenje");
+        System.out.println(fitnessMax);
     }
 
     private static List<Schedule> fillPopulation(Data data, int numberOfIndividuals) {
@@ -28,7 +44,8 @@ public class Demo {
                 schedule = new Schedule(
                         data.getAllTracks(),
                         data.getAllVehicles(),
-                        data.getTracksThatBlockOtherTracks());
+                        data.getTracksThatBlockOtherTracks(),
+                        data.getTracksBlockedByOtherTracks());
             } catch (IllegalStateException ignorable) {
                 //bacit ce exception kada nisu sva vozila raspodijeljena --> vidi track#addVehicle()
                 //todo: mozda vidit zasto se to dogada da nekad vozila nisu raspodijeljena

@@ -12,13 +12,18 @@ public class Schedule {
     private List<Track> trake;
     private List<Vehicle> vehicles;
     private List<Integer> redoslijedDodavanjaUTrake;
+    private List<Integer> tracksBlockedByOtherTracks;
+    private List<Integer> tracksThatBlockOtherTracks;
 
     public Schedule(List<Track> trake,
                     List<Vehicle> vehicles,
-                    List<Integer> tracksThatBlockOtherTracks) {
+                    List<Integer> tracksThatBlockOtherTracks,
+                    List<Integer> tracksBlockedByOtherTracks) {
 
         this.trake = trake;
         this.vehicles = getSortedVehiclesByTime(vehicles);
+        this.tracksBlockedByOtherTracks = tracksBlockedByOtherTracks;
+        this.tracksThatBlockOtherTracks = tracksThatBlockOtherTracks;
         this.redoslijedDodavanjaUTrake = getRandomConstrainedTracks(trake, tracksThatBlockOtherTracks);
 
         fillTracksWithVehicles();
@@ -236,5 +241,54 @@ public class Schedule {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public boolean isInvalid() {
+        List<Track> trakeSVozilima = getTracksWithVehicles();
+        boolean isFull = false;
+        boolean isNotSorted  =  false;
+        boolean isBlockingInvalid = false;
+        boolean isSerieInvalid = false;
+        boolean isAnyTrackNotAllowedForVehicle = false;
+        for (Track track : trakeSVozilima) {
+            isFull = track.checkIfTrackAlreadyFull(0);
+
+            for (int i = 0; i < track.getVozilaUOvojTraci().size() - 1; i++) {
+                Vehicle ovo = track.getVozilaUOvojTraci().get(i);
+                Vehicle sljedece = track.getVozilaUOvojTraci().get(i + 1);
+                if(ovo.vrijemePolaska > sljedece.vrijemePolaska) {
+                    isNotSorted = true;
+                }
+                if(ovo.serijaVozila != sljedece.serijaVozila) {
+                    isSerieInvalid = true;
+                }
+                if(!ovo.dozvoljeneTrakeZaParkiranje.contains(track.idTrake) || !sljedece.dozvoljeneTrakeZaParkiranje.contains(track.idTrake)) {
+                    isAnyTrackNotAllowedForVehicle = true;
+                }
+
+            }
+
+            if(this.tracksBlockedByOtherTracks.contains(track.idTrake)) {
+                List<Integer> blockingTracksForTrack = Demo.data.getBlockingTracksForTrack(track.idTrake);
+                for (Integer blockingTrackId: blockingTracksForTrack) {
+                    Track blockingTrack = trakeSVozilima.stream().filter(track1 ->  track1.idTrake == blockingTrackId).findFirst().get();
+                    Vehicle lastBlockingVehicle = blockingTrack.getVozilaUOvojTraci().get(blockingTrack.getVozilaUOvojTraci().size() -1 );
+                    Vehicle firstVehicleInCurrentTrack = track.getVozilaUOvojTraci().get(0);
+                    if(lastBlockingVehicle.vrijemePolaska > firstVehicleInCurrentTrack.vrijemePolaska) {
+                        isBlockingInvalid = true;
+                    }
+
+                }
+            }
+        }
+        if(isFull || isNotSorted ||isBlockingInvalid || isSerieInvalid || isAnyTrackNotAllowedForVehicle) {
+            System.out.println("IsFull: " + isFull);
+            System.out.println("isNotSorted: " + isNotSorted);
+            System.out.println("isBlockingInvalid: " + isBlockingInvalid);
+            System.out.println("isSerieInvalid: " + isSerieInvalid);
+            System.out.println("isAnyTrackNotAllowedForVehicle: " + isAnyTrackNotAllowedForVehicle);
+        }
+
+        return isFull || isNotSorted ||isBlockingInvalid || isSerieInvalid || isAnyTrackNotAllowedForVehicle;
     }
 }

@@ -144,4 +144,9 @@ public class Data {
     public List<Integer> getTracksBlockedByOtherTracks(){
         return blokiraneTrake.keySet().stream().filter(t -> !blokiraneTrake.get(t).isEmpty()).collect(Collectors.toList());
     }
+
+    public List<Integer> getBlockingTracksForTrack(int blockedTrackId) {
+        return blokiraneTrake.keySet().stream().filter(t -> blokiraneTrake.get(t).contains(blockedTrackId)).collect(Collectors.toList());
+    }
+
 }
