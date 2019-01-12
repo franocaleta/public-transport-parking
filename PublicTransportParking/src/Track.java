@@ -84,15 +84,31 @@ public class Track {
         return duljinaTrake - ((vozilaUOvojTraci.size() - 1) * 0.5 + zbrojDuljinaDodanihVozila);
     }
 
-    public int brojIstihSusjednihParovaUTraci() {
+    public int brojSusjednihParovaUtraciSIstimTipomRasporeda() {
         int sum = 0;
 
         for (int i = 0; i < vozilaUOvojTraci.size() - 1; i++) {
-            if (vozilaUOvojTraci.get(i).serijaVozila == vozilaUOvojTraci.get(i + 1).serijaVozila) {
+            if (vozilaUOvojTraci.get(i).tipRasporeda == vozilaUOvojTraci.get(i + 1).tipRasporeda) {
                 sum += 1;
             }
         }
 
         return sum;
+    }
+
+    public int getRasporedZadnjegVozilaUTraci(){
+        if (vozilaUOvojTraci.isEmpty()){
+            throw new IllegalStateException("Traka je prazna");
+        }
+
+        return vozilaUOvojTraci.get(vozilaUOvojTraci.size()-1).tipRasporeda;
+    }
+
+    public int getRasporedPrvogVozilaUTraci(){
+        if (vozilaUOvojTraci.isEmpty()){
+            throw new IllegalStateException("Traka je prazna");
+        }
+
+        return vozilaUOvojTraci.get(0).tipRasporeda;
     }
 }

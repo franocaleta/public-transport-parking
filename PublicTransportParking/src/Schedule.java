@@ -47,17 +47,17 @@ public class Schedule {
 
     private void fillTracksWithVehicles() {
         for (Vehicle vehicle : vehicles) {
-            boolean filled =  false;
+            boolean filled = false;
             for (Track track : trake) {
-                if (track.addVehicle(vehicle)){
-             //       System.out.println("spremljen");
+                if (track.addVehicle(vehicle)) {
+                    //       System.out.println("spremljen");
 
-              //      filled = true;
+                    //      filled = true;
                     break;
                 }
             }
-            if(!filled) {
-             //   System.out.println("nije spremljen");
+            if (!filled) {
+                //   System.out.println("nije spremljen");
                 filled = false;
             }
         }
@@ -66,9 +66,7 @@ public class Schedule {
     public double g1min1() {
         double different_neighbours = 0.0;
 
-        List<Track> trakeSVozilima = trake.stream()
-                .filter(track -> !track.getVozilaUOvojTraci().isEmpty())
-                .collect(Collectors.toList());
+        List<Track> trakeSVozilima = getTracksWithVehicles();
 
         for (int i = 0; i < trakeSVozilima.size() - 1; i++) {
             int serijaOve = trakeSVozilima.get(i).getVozilaUOvojTraci().get(0).serijaVozila;
@@ -80,15 +78,21 @@ public class Schedule {
         return different_neighbours / (this.trake.size() - getNumberOfEmptyTracks());
     }
 
-    public long getNumberOfEmptyTracks() {
+    private long getNumberOfEmptyTracks() {
         return this.trake.stream().filter(track -> track.getVozilaUOvojTraci().isEmpty()).count();
     }
 
-    public double g2min2() {
+    private List<Track> getTracksWithVehicles() {
+        return trake.stream()
+                .filter(track -> !track.getVozilaUOvojTraci().isEmpty())
+                .collect(Collectors.toList());
+    }
+
+    private double g1min2() {
         return (this.trake.size() - this.getNumberOfEmptyTracks()) * 1.0 / this.trake.size();
     }
 
-    public double g3min3() {
+    private double g1min3() {
         double sumNeiskoristenogProstoraTraka = trake.stream().mapToDouble(Track::unusedCapacity).sum();
         double sumSvihDuljinaTraka = trake.stream().mapToDouble(t -> t.duljinaTrake).sum();
         double sumDuljinaVozila = vehicles.stream().mapToDouble(v -> v.duljinaVozila).sum();
@@ -96,27 +100,85 @@ public class Schedule {
         return sumNeiskoristenogProstoraTraka / (sumSvihDuljinaTraka - sumDuljinaVozila);
     }
 
-    public double firstGlobalGoal() {
-        return g1min1() + g2min2() + g3min3();
+    public double g2min1() {
+        double brojIstihParovaPoRasporedu = trake.stream()
+                .mapToDouble(Track::brojSusjednihParovaUtraciSIstimTipomRasporeda)
+                .sum();
+
+        double brojKoristenihTraka = trake.size() - getNumberOfEmptyTracks();
+
+        return brojIstihParovaPoRasporedu / (vehicles.size() - brojIstihParovaPoRasporedu);
     }
 
-    public double g2min1() {
-        //todo dovrsit ovo i sve ostale ciljeve
-        //todo isprobat jednu generiranu jedinku i ispisat da vidimo jel rjesene zadovoljavajuce
-        //todo napravit genetski i smislit krizanje
+    public double g2min2() {
+        double count = 0;
+        double brojKoristenihTraka = trake.size() - getNumberOfEmptyTracks();
 
-        double brojIstihParovaPoSeriji = trake.stream().mapToDouble(Track::brojIstihSusjednihParovaUTraci).sum();
+        List<Track> trakeSVozilima = getTracksWithVehicles();
 
-        return 0;
+        for (int i = 0; i < trakeSVozilima.size() - 1; i++) {
+            int ovaZadnji = trakeSVozilima.get(i).getRasporedZadnjegVozilaUTraci();
+            int sljedecaPrvi = trakeSVozilima.get(i + 1).getRasporedPrvogVozilaUTraci();
+
+            if (ovaZadnji == sljedecaPrvi) count++;
+        }
+
+        return count / (brojKoristenihTraka - 1);
+    }
+
+    public double g2min3() {
+        double sumaNagradaIPenala = 0;
+        List<Track> trakeSVozilima = getTracksWithVehicles();
+
+        for (Track track : trakeSVozilima) {
+            for (int i = 0; i < track.getVozilaUOvojTraci().size() - 1; i++) {
+                Vehicle ovo = track.getVozilaUOvojTraci().get(i);
+                Vehicle sljedece = track.getVozilaUOvojTraci().get(i + 1);
+
+                sumaNagradaIPenala += nagradaIliPenal(ovo, sljedece);
+            }
+        }
+
+        double brojEvaluiranihParova = trakeSVozilima.stream()
+                .mapToDouble(t -> t.getVozilaUOvojTraci().size() - 1)
+                .sum();
+
+        return sumaNagradaIPenala / (15 * brojEvaluiranihParova);
+    }
+
+    private double nagradaIliPenal(Vehicle ovo, Vehicle sljedece) {
+        int vr = sljedece.vrijemePolaska - ovo.vrijemePolaska;
+
+        if (10 <= vr && vr <= 20) {
+            return 15;
+        } else if (vr > 20) {
+            return 10;
+        } else {
+            return -4 * (10 - vr);
+        }
+    }
+
+    public double firstGlobalGoal() {
+        return g1min1() + g1min2() + g1min3();
+    }
+
+    public double secondGlobalGoal() {
+        return g2min1() + g2min2() + g2min3();
+    }
+
+    public double fitness() {
+        // Predana rješenja će biti rangirana prema omjeru ovih funkcija: drugi_globalni_cilj / prvi_globalni_cilj.
+        // Što je omjer veći, to je rješenje bolje.
+        return secondGlobalGoal() / firstGlobalGoal();
     }
 
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
         int j = 0;
-        for (int i = 0 ; i < this.trake.size(); i++) {
+        for (int i = 0; i < this.trake.size(); i++) {
             Track tr = this.trake.get(i);
-            for(Vehicle v : tr.getVozilaUOvojTraci()) {
+            for (Vehicle v : tr.getVozilaUOvojTraci()) {
                 j++;
                 sb.append(v.vrijemePolaska);
                 sb.append("\n");
