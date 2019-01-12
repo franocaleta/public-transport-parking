@@ -1,66 +1,70 @@
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class Schedule {
 
     private List<Track> trake;
     private List<Vehicle> vehicles;
+    private List<Integer> redoslijedDodavanjaUTrake;
 
     public Schedule(List<Track> trake,
                     List<Vehicle> vehicles,
-                    List<Integer> tracksThatBlockOtherTracks,
-                    List<Integer> tracksBlockedByOtherTracks) {
-        this.vehicles = getSortedehiclesByTime(vehicles);
-        this.trake = getRandomConstrainedTracks(trake, tracksThatBlockOtherTracks, tracksBlockedByOtherTracks);
+                    List<Integer> tracksThatBlockOtherTracks) {
+
+        this.trake = trake;
+        this.vehicles = getSortedVehiclesByTime(vehicles);
+        this.redoslijedDodavanjaUTrake = getRandomConstrainedTracks(trake, tracksThatBlockOtherTracks);
 
         fillTracksWithVehicles();
     }
 
-    private List<Vehicle> getSortedehiclesByTime(List<Vehicle> vehicles) {
+    private List<Vehicle> getSortedVehiclesByTime(List<Vehicle> vehicles) {
         return vehicles.stream()
                 .sorted(Comparator.comparingInt(v -> v.vrijemePolaska))
                 .collect(Collectors.toList());
     }
 
-    private List<Track> getRandomConstrainedTracks(List<Track> trake,
-                                                   List<Integer> tracksThatBlockOtherTracks,
-                                                   List<Integer> tracksBlockedByOtherTracks) {
+    private List<Integer> getRandomConstrainedTracks(List<Track> trake,
+                                                   List<Integer> tracksThatBlockOtherTracks) {
 
-        List<Integer> blokirajuce = new ArrayList<>(tracksThatBlockOtherTracks);
-        List<Integer> blokiraneTrake = new ArrayList<>(tracksBlockedByOtherTracks);
+        List<Integer> blokirajuceTrake = new ArrayList<>(tracksThatBlockOtherTracks);
+        List<Integer> ostaleTrake = trake.stream()
+                .map(t -> t.idTrake)
+                .filter(id -> !blokirajuceTrake.contains(id))
+                .collect(Collectors.toList());
 
-        Collections.shuffle(blokirajuce);
-        Collections.shuffle(blokiraneTrake);
+        Collections.shuffle(blokirajuceTrake);
+        Collections.shuffle(ostaleTrake);
 
-        blokirajuce.addAll(blokiraneTrake);
-
-        List<Track> poredaneTrake = new ArrayList<>();
-        for (Integer ind : blokirajuce) {
-            poredaneTrake.add(trake.get(ind));
-        }
-        poredaneTrake.addAll(trake.stream().filter(track -> !poredaneTrake.contains(track)).collect(Collectors.toList()));
-        return poredaneTrake;
+        blokirajuceTrake.addAll(ostaleTrake);
+        return blokirajuceTrake;
     }
 
     private void fillTracksWithVehicles() {
-        for (Vehicle vehicle : vehicles) {
-            boolean filled = false;
-            for (Track track : trake) {
-                if (track.addVehicle(vehicle)) {
-                    //       System.out.println("spremljen");
+        int count = 0;
 
-                    //      filled = true;
+        for (Vehicle vehicle : vehicles) {
+            for (Integer index : redoslijedDodavanjaUTrake) {
+                if (trake.get(index).addVehicle(vehicle)){
+                    count++;
                     break;
                 }
             }
-            if (!filled) {
-                //   System.out.println("nije spremljen");
-                filled = false;
-            }
         }
+
+        if (count != vehicles.size()){
+            throw new IllegalStateException("Nisu sva vozila rasporedena u trake!");
+        }
+    }
+
+    private long getNumberOfEmptyTracks() {
+        return this.trake.stream().filter(track -> track.getVozilaUOvojTraci().isEmpty()).count();
+    }
+
+    private List<Track> getTracksWithVehicles() {
+        return trake.stream()
+                .filter(track -> !track.getVozilaUOvojTraci().isEmpty())
+                .collect(Collectors.toList());
     }
 
     public double g1min1() {
@@ -76,16 +80,6 @@ public class Schedule {
         }
 
         return different_neighbours / (this.trake.size() - getNumberOfEmptyTracks());
-    }
-
-    private long getNumberOfEmptyTracks() {
-        return this.trake.stream().filter(track -> track.getVozilaUOvojTraci().isEmpty()).count();
-    }
-
-    private List<Track> getTracksWithVehicles() {
-        return trake.stream()
-                .filter(track -> !track.getVozilaUOvojTraci().isEmpty())
-                .collect(Collectors.toList());
     }
 
     private double g1min2() {
