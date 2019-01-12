@@ -84,13 +84,13 @@ public class Data {
                             .map(e -> e - 1)
                             .collect(Collectors.toCollection(LinkedList::new));
 
-                    blokiraneTrake.get(parts.pop()).addAll(parts);
+                    blokirajuceTrake.get(parts.pop()).addAll(parts);
                 });
 
 
-        for (Map.Entry<Integer, Set<Integer>> entry : blokiraneTrake.entrySet()) {
+        for (Map.Entry<Integer, Set<Integer>> entry : blokirajuceTrake.entrySet()) {
             for (Integer value : entry.getValue()) {
-                blokirajuceTrake.get(value).add(entry.getKey());
+                blokiraneTrake.get(value).add(entry.getKey());
             }
         }
     }

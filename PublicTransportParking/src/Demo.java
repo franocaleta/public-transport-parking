@@ -18,7 +18,7 @@ public class Demo {
 //        tracks.forEach(System.out::println);
 //        vehicles.forEach(System.out::println);
         Demo.data = new Data("instanca1.txt");
-        IntStream.range(0, 20).forEach(i ->
+        for(int i = 0 ; i < 20; i++)
         {
             Demo.data = new Data("instanca1.txt");
             Schedule schedule = new Schedule(
@@ -27,18 +27,25 @@ public class Demo {
                     new ArrayList<>(data.getTracksThatBlockOtherTracks()),
                     new ArrayList<>(data.getTracksBlockedByOtherTracks()));
 
-            System.out.println(
-                    "G1:" + schedule.firstGlobalGoal()
-                            + " G2: " + schedule.secondGlobalGoal()
-                            + " Fitness:" + schedule.fitness()
-            );
+            // rewriteat ovo u stream
             int size = 0;
             List<Track> trake = schedule.getTrake();
             for (int j = 0; j < trake.size(); j++) {
                 Track tr = trake.get(j);
                 size += tr.getVozilaUOvojTraci().size();
             }
+            if (size != data.getAllVehicles().size()){
+                i--;
+                continue;
+            }
+
+            System.out.println(
+                    "G1:" + schedule.firstGlobalGoal()
+                            + " G2: " + schedule.secondGlobalGoal()
+                            + " Fitness:" + schedule.fitness()
+            );
+
             System.out.println("Size" + size);
-        });
+        };
     }
 }
