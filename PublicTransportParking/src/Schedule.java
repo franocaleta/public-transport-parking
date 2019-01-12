@@ -1,3 +1,9 @@
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -185,5 +191,27 @@ public class Schedule {
 
     public List<Track> getTrake() {
         return  this.trake;
+    }
+
+    public void printScheduleToFile(String fileName){
+        List<String> lines = new ArrayList<>();
+        for (Track track : trake) {
+            if (track.getVozilaUOvojTraci().isEmpty()){
+                lines.add("");
+            }else {
+                StringJoiner joiner = new StringJoiner(" ");
+                for (Vehicle vehicle : track.getVozilaUOvojTraci()) {
+                    joiner.add(String.valueOf(vehicle.idVozila + 1));
+                }
+                lines.add(joiner.toString());
+            }
+        }
+
+        Path newFile = Paths.get("resources/" + fileName + ".txt");
+        try {
+            Files.write(newFile, lines, Charset.forName("UTF-8"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

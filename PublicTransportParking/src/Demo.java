@@ -7,7 +7,13 @@ public class Demo {
 
     public static void main(String[] args) {
         Data data = new Data("instanca1.txt");
-//        data.printParsedData();
+
+//        Schedule schedule = new Schedule(
+//                data.getAllTracks(),
+//                data.getAllVehicles(),
+//                data.getTracksThatBlockOtherTracks());
+//
+//        schedule.printScheduleToFile("res-1m-i1");
 
         List<Schedule> populacija = fillPopulation(data, 1000);
     }
