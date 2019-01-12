@@ -41,7 +41,7 @@ public class Schedule {
         for (Integer ind : blokirajuce) {
             poredaneTrake.add(trake.get(ind));
         }
-
+        poredaneTrake.addAll(trake.stream().filter(track -> !poredaneTrake.contains(track)).collect(Collectors.toList()));
         return poredaneTrake;
     }
 
@@ -187,5 +187,9 @@ public class Schedule {
         }
         sb.append("vozila : " + j);
         return sb.toString();
+    }
+
+    public List<Track> getTrake() {
+        return  this.trake;
     }
 }

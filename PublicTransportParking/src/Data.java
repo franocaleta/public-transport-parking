@@ -138,10 +138,10 @@ public class Data {
     }
 
     public List<Integer> getTracksThatBlockOtherTracks() {
-        return new ArrayList<>(blokirajuceTrake.keySet());
+        return new ArrayList<>(blokirajuceTrake.keySet().stream().filter(t -> !blokirajuceTrake.get(t).isEmpty()).collect(Collectors.toList()));
     }
 
     public List<Integer> getTracksBlockedByOtherTracks(){
-        return new ArrayList<>(blokirajuceTrake.keySet());
+        return new ArrayList<>(blokiraneTrake.keySet().stream().filter(t -> !blokiraneTrake.get(t).isEmpty()).collect(Collectors.toList()));
     }
 }
