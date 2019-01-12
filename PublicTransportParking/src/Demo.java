@@ -8,14 +8,15 @@ public class Demo {
     public static void main(String[] args) {
         Data data = new Data("instanca1.txt");
 
-//        Schedule schedule = new Schedule(
-//                data.getAllTracks(),
-//                data.getAllVehicles(),
-//                data.getTracksThatBlockOtherTracks());
-//
-//        schedule.printScheduleToFile("res-1m-i1");
+        Schedule schedule = new Schedule(
+                data.getAllTracks(),
+                data.getAllVehicles(),
+                data.getTracksThatBlockOtherTracks());
 
-        List<Schedule> populacija = fillPopulation(data, 1000);
+        schedule.printScheduleToFile("res-1m-i1");
+        schedule.debbugFunkcije();
+
+//        List<Schedule> populacija = fillPopulation(data, 1000);
     }
 
     private static List<Schedule> fillPopulation(Data data, int numberOfIndividuals) {

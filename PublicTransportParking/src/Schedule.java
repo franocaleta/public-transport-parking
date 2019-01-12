@@ -73,7 +73,7 @@ public class Schedule {
                 .collect(Collectors.toList());
     }
 
-    public double g1min1() {
+    private double g1min1() {
         double different_neighbours = 0.0;
 
         List<Track> trakeSVozilima = getTracksWithVehicles();
@@ -85,7 +85,7 @@ public class Schedule {
             if (serijaOve != serijaSljedece) different_neighbours++;
         }
 
-        return different_neighbours / (this.trake.size() - getNumberOfEmptyTracks());
+        return different_neighbours / (this.trake.size() - getNumberOfEmptyTracks() - 1);
     }
 
     private double g1min2() {
@@ -93,24 +93,33 @@ public class Schedule {
     }
 
     private double g1min3() {
-        double sumNeiskoristenogProstoraTraka = trake.stream().mapToDouble(Track::unusedCapacity).sum();
-        double sumSvihDuljinaTraka = trake.stream().mapToDouble(t -> t.duljinaTrake).sum();
-        double sumDuljinaVozila = vehicles.stream().mapToDouble(v -> v.duljinaVozila).sum();
+        double sumNeiskoristenogProstoraTraka = trake.stream()
+                .filter(track -> !track.getVozilaUOvojTraci().isEmpty())
+                .mapToDouble(Track::unusedCapacity)
+                .sum();
+
+        double sumSvihDuljinaTraka = trake.stream()
+                .mapToDouble(t -> t.duljinaTrake)
+                .sum();
+
+        double sumDuljinaVozila = vehicles.stream()
+                .mapToDouble(v -> v.duljinaVozila)
+                .sum();
 
         return sumNeiskoristenogProstoraTraka / (sumSvihDuljinaTraka - sumDuljinaVozila);
     }
 
-    public double g2min1() {
+    private double g2min1() {
         double brojIstihParovaPoRasporedu = trake.stream()
                 .mapToDouble(Track::brojSusjednihParovaUtraciSIstimTipomRasporeda)
                 .sum();
 
         double brojKoristenihTraka = trake.size() - getNumberOfEmptyTracks();
 
-        return brojIstihParovaPoRasporedu / (vehicles.size() - brojIstihParovaPoRasporedu);
+        return brojIstihParovaPoRasporedu / (vehicles.size() - brojKoristenihTraka);
     }
 
-    public double g2min2() {
+    private double g2min2() {
         double count = 0;
         double brojKoristenihTraka = trake.size() - getNumberOfEmptyTracks();
 
@@ -126,7 +135,7 @@ public class Schedule {
         return count / (brojKoristenihTraka - 1);
     }
 
-    public double g2min3() {
+    private double g2min3() {
         double sumaNagradaIPenala = 0;
         List<Track> trakeSVozilima = getTracksWithVehicles();
 
@@ -170,6 +179,20 @@ public class Schedule {
         // Predana rješenja će biti rangirana prema omjeru ovih funkcija: drugi_globalni_cilj / prvi_globalni_cilj.
         // Što je omjer veći, to je rješenje bolje.
         return secondGlobalGoal() / firstGlobalGoal();
+    }
+
+    public void debbugFunkcije(){
+        System.out.println(g1min1());
+        System.out.println(g1min2());
+        System.out.println(g1min3());
+        System.out.println("G1 " + firstGlobalGoal());
+
+        System.out.println("----------------------");
+
+        System.out.println(g2min1());
+        System.out.println(g2min2());
+        System.out.println(g2min3());
+        System.out.println("G2 " + secondGlobalGoal());
     }
 
     @Override
