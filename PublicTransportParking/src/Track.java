@@ -10,8 +10,8 @@ public class Track {
     public final Set<Integer> trakeKojeBlokirajuOvuTraku;
     public final Set<Integer> trakeKojeOvaTrakaBlokira;
 
-    private List<Vehicle> vozilaUOvojTraci;
-    private int zbrojDuljinaDodanihVozila;
+    public List<Vehicle> vozilaUOvojTraci;
+    public int zbrojDuljinaDodanihVozila;
 
     public Track(int idTrake,
                  int duljinaTrake,

@@ -13,7 +13,8 @@ public class Demo {
                 data.getAllTracks(),
                 data.getAllVehicles(),
                 data.getTracksThatBlockOtherTracks(),
-                data.getTracksBlockedByOtherTracks());
+                data.getTracksBlockedByOtherTracks(),
+                true);
 
       //  schedule.printScheduleToFile("res-1m-i1");
       //  schedule.debbugFunkcije();
@@ -22,15 +23,16 @@ public class Demo {
         Schedule sce = null;
         List<Schedule> populacija = fillPopulation(data, 20);
         for(Schedule sc : populacija) {
-            System.out.println(sc.isInvalid());
+    //        System.out.println(sc.isInvalid());
             if(sc.fitness() > fitnessMax) {
                 fitnessMax = sc.fitness();
                 sce  = sc;
             }
         }
         SimulatedAnnealing simulatedAnnealing = new SimulatedAnnealing(sce);
-      //  simulatedAnnealing.run();
-    //    sce.debbugFunkcije();
+        Schedule best = simulatedAnnealing.run();
+        best.printScheduleToFile("best");
+   //     best.debbugFunkcije();
    //     sce.printScheduleToFile("rjesenje");
         System.out.println(fitnessMax);
     }
@@ -45,7 +47,8 @@ public class Demo {
                         data.getAllTracks(),
                         data.getAllVehicles(),
                         data.getTracksThatBlockOtherTracks(),
-                        data.getTracksBlockedByOtherTracks());
+                        data.getTracksBlockedByOtherTracks(),
+                        true);
             } catch (IllegalStateException ignorable) {
                 //bacit ce exception kada nisu sva vozila raspodijeljena --> vidi track#addVehicle()
                 //todo: mozda vidit zasto se to dogada da nekad vozila nisu raspodijeljena

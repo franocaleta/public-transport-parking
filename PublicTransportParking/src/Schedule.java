@@ -18,15 +18,18 @@ public class Schedule {
     public Schedule(List<Track> trake,
                     List<Vehicle> vehicles,
                     List<Integer> tracksThatBlockOtherTracks,
-                    List<Integer> tracksBlockedByOtherTracks) {
+                    List<Integer> tracksBlockedByOtherTracks,
+                    boolean shouldFillTracks) {
 
         this.trake = trake;
         this.vehicles = getSortedVehiclesByTime(vehicles);
         this.tracksBlockedByOtherTracks = tracksBlockedByOtherTracks;
         this.tracksThatBlockOtherTracks = tracksThatBlockOtherTracks;
-        this.redoslijedDodavanjaUTrake = getRandomConstrainedTracks(trake, tracksThatBlockOtherTracks);
+        if (shouldFillTracks) {
+            this.redoslijedDodavanjaUTrake = getRandomConstrainedTracks(trake, tracksThatBlockOtherTracks);
+            fillTracksWithVehicles();
+        }
 
-        fillTracksWithVehicles();
     }
 
     private List<Vehicle> getSortedVehiclesByTime(List<Vehicle> vehicles) {
@@ -36,7 +39,7 @@ public class Schedule {
     }
 
     private List<Integer> getRandomConstrainedTracks(List<Track> trake,
-                                                   List<Integer> tracksThatBlockOtherTracks) {
+                                                     List<Integer> tracksThatBlockOtherTracks) {
 
         List<Integer> blokirajuceTrake = new ArrayList<>(tracksThatBlockOtherTracks);
         List<Integer> ostaleTrake = trake.stream()
@@ -56,14 +59,14 @@ public class Schedule {
 
         for (Vehicle vehicle : vehicles) {
             for (Integer index : redoslijedDodavanjaUTrake) {
-                if (trake.get(index).addVehicle(vehicle)){
+                if (trake.get(index).addVehicle(vehicle)) {
                     count++;
                     break;
                 }
             }
         }
 
-        if (count != vehicles.size()){
+        if (count != vehicles.size()) {
             throw new IllegalStateException("Nisu sva vozila rasporedena u trake!");
         }
     }
@@ -186,7 +189,7 @@ public class Schedule {
         return secondGlobalGoal() / firstGlobalGoal();
     }
 
-    public void debbugFunkcije(){
+    public void debbugFunkcije() {
         System.out.println(g1min1());
         System.out.println(g1min2());
         System.out.println(g1min3());
@@ -218,15 +221,15 @@ public class Schedule {
     }
 
     public List<Track> getTrake() {
-        return  this.trake;
+        return this.trake;
     }
 
-    public void printScheduleToFile(String fileName){
+    public void printScheduleToFile(String fileName) {
         List<String> lines = new ArrayList<>();
         for (Track track : trake) {
-            if (track.getVozilaUOvojTraci().isEmpty()){
+            if (track.getVozilaUOvojTraci().isEmpty()) {
                 lines.add("");
-            }else {
+            } else {
                 StringJoiner joiner = new StringJoiner(" ");
                 for (Vehicle vehicle : track.getVozilaUOvojTraci()) {
                     joiner.add(String.valueOf(vehicle.idVozila + 1));
@@ -246,49 +249,70 @@ public class Schedule {
     public boolean isInvalid() {
         List<Track> trakeSVozilima = getTracksWithVehicles();
         boolean isFull = false;
-        boolean isNotSorted  =  false;
+        boolean isNotSorted = false;
         boolean isBlockingInvalid = false;
         boolean isSerieInvalid = false;
         boolean isAnyTrackNotAllowedForVehicle = false;
+        boolean areVehiclesMissing = trakeSVozilima.stream().flatMap(track ->
+                track.getVozilaUOvojTraci().stream()).collect(Collectors.toList()).size() != this.vehicles.size();
         for (Track track : trakeSVozilima) {
-            isFull = track.checkIfTrackAlreadyFull(0);
+            isFull = track.unusedCapacity() < 0;
 
             for (int i = 0; i < track.getVozilaUOvojTraci().size() - 1; i++) {
                 Vehicle ovo = track.getVozilaUOvojTraci().get(i);
                 Vehicle sljedece = track.getVozilaUOvojTraci().get(i + 1);
-                if(ovo.vrijemePolaska > sljedece.vrijemePolaska) {
+                if (ovo.vrijemePolaska > sljedece.vrijemePolaska) {
                     isNotSorted = true;
                 }
-                if(ovo.serijaVozila != sljedece.serijaVozila) {
+                if (ovo.serijaVozila != sljedece.serijaVozila) {
                     isSerieInvalid = true;
                 }
-                if(!ovo.dozvoljeneTrakeZaParkiranje.contains(track.idTrake) || !sljedece.dozvoljeneTrakeZaParkiranje.contains(track.idTrake)) {
+                if (!ovo.dozvoljeneTrakeZaParkiranje.contains(track.idTrake) || !sljedece.dozvoljeneTrakeZaParkiranje.contains(track.idTrake)) {
                     isAnyTrackNotAllowedForVehicle = true;
                 }
 
             }
 
-            if(this.tracksBlockedByOtherTracks.contains(track.idTrake)) {
+            if (this.tracksBlockedByOtherTracks.contains(track.idTrake)) {
                 List<Integer> blockingTracksForTrack = Demo.data.getBlockingTracksForTrack(track.idTrake);
-                for (Integer blockingTrackId: blockingTracksForTrack) {
-                    Track blockingTrack = trakeSVozilima.stream().filter(track1 ->  track1.idTrake == blockingTrackId).findFirst().get();
-                    Vehicle lastBlockingVehicle = blockingTrack.getVozilaUOvojTraci().get(blockingTrack.getVozilaUOvojTraci().size() -1 );
+                for (Integer blockingTrackId : blockingTracksForTrack) {
+                    Track blockingTrack = trakeSVozilima.stream().filter(track1 -> track1.idTrake == blockingTrackId).findFirst().get();
+                    Vehicle lastBlockingVehicle = blockingTrack.getVozilaUOvojTraci().get(blockingTrack.getVozilaUOvojTraci().size() - 1);
                     Vehicle firstVehicleInCurrentTrack = track.getVozilaUOvojTraci().get(0);
-                    if(lastBlockingVehicle.vrijemePolaska > firstVehicleInCurrentTrack.vrijemePolaska) {
+                    if (lastBlockingVehicle.vrijemePolaska > firstVehicleInCurrentTrack.vrijemePolaska) {
                         isBlockingInvalid = true;
                     }
 
                 }
             }
         }
-        if(isFull || isNotSorted ||isBlockingInvalid || isSerieInvalid || isAnyTrackNotAllowedForVehicle) {
-            System.out.println("IsFull: " + isFull);
-            System.out.println("isNotSorted: " + isNotSorted);
-            System.out.println("isBlockingInvalid: " + isBlockingInvalid);
-            System.out.println("isSerieInvalid: " + isSerieInvalid);
-            System.out.println("isAnyTrackNotAllowedForVehicle: " + isAnyTrackNotAllowedForVehicle);
+        if (isFull || isNotSorted || isBlockingInvalid || isSerieInvalid || isAnyTrackNotAllowedForVehicle) {
+//            System.out.println("IsFull: " + isFull);
+//            System.out.println("isNotSorted: " + isNotSorted);
+//            System.out.println("isBlockingInvalid: " + isBlockingInvalid);
+//            System.out.println("isSerieInvalid: " + isSerieInvalid);
+//            System.out.println("isAnyTrackNotAllowedForVehicle: " + isAnyTrackNotAllowedForVehicle);
         }
 
-        return isFull || isNotSorted ||isBlockingInvalid || isSerieInvalid || isAnyTrackNotAllowedForVehicle;
+        return isFull || isNotSorted || isBlockingInvalid || isSerieInvalid || isAnyTrackNotAllowedForVehicle || areVehiclesMissing;
+    }
+
+    public Schedule createCopy() {
+        List<Track> tracks = new ArrayList<Track>();
+        for (Track track : this.trake) {
+            Track tr = new Track(track.idTrake, track.duljinaTrake, track.trakeKojeBlokirajuOvuTraku, track.trakeKojeOvaTrakaBlokira);
+            for (Vehicle vehicle : track.getVozilaUOvojTraci()) {
+                tr.addVehicle(new Vehicle(
+                        vehicle.idVozila,
+                        vehicle.duljinaVozila,
+                        vehicle.serijaVozila,
+                        vehicle.dozvoljeneTrakeZaParkiranje,
+                        vehicle.vrijemePolaska,
+                        vehicle.tipRasporeda)
+                );
+            }
+            tracks.add(tr);
+        }
+        return new Schedule(tracks, new ArrayList<>(this.vehicles), this.tracksThatBlockOtherTracks, this.tracksBlockedByOtherTracks, false);
     }
 }
