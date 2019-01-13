@@ -301,16 +301,8 @@ public class Schedule {
         List<Track> tracks = new ArrayList<Track>();
         for (Track track : this.trake) {
             Track tr = new Track(track.idTrake, track.duljinaTrake, track.trakeKojeBlokirajuOvuTraku, track.trakeKojeOvaTrakaBlokira);
-            for (Vehicle vehicle : track.getVozilaUOvojTraci()) {
-                tr.addVehicle(new Vehicle(
-                        vehicle.idVozila,
-                        vehicle.duljinaVozila,
-                        vehicle.serijaVozila,
-                        vehicle.dozvoljeneTrakeZaParkiranje,
-                        vehicle.vrijemePolaska,
-                        vehicle.tipRasporeda)
-                );
-            }
+            List<Vehicle> vehicles =  track.getVozilaUOvojTraci();
+            tr.vozilaUOvojTraci = vehicles;
             tracks.add(tr);
         }
         return new Schedule(tracks, new ArrayList<>(this.vehicles), this.tracksThatBlockOtherTracks, this.tracksBlockedByOtherTracks, false);
