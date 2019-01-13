@@ -21,9 +21,9 @@ public class Demo {
 
         double fitnessMax = 0.0;
         Schedule sce = null;
-        List<Schedule> populacija = fillPopulation(data, 20);
+        List<Schedule> populacija = fillPopulation(data, 1);
         for(Schedule sc : populacija) {
-    //        System.out.println(sc.isInvalid());
+            System.out.println(sc.isInvalid());
             if(sc.fitness() > fitnessMax) {
                 fitnessMax = sc.fitness();
                 sce  = sc;
@@ -31,9 +31,11 @@ public class Demo {
         }
         SimulatedAnnealing simulatedAnnealing = new SimulatedAnnealing(sce);
         Schedule best = simulatedAnnealing.run();
-        best.printScheduleToFile("best");
-   //     best.debbugFunkcije();
-   //     sce.printScheduleToFile("rjesenje");
+       // best.printScheduleToFile("best");
+     //   best.getTrake().stream().forEach(track -> System.out.println(track.duljinaTrake+" Unused"+ track.unusedCapacity()));
+    //    best.debbugFunkcije();
+
+        sce.printScheduleToFile("rjesenje");
         System.out.println(fitnessMax);
     }
 
