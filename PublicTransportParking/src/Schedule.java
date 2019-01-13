@@ -220,6 +220,28 @@ public class Schedule {
         return sb.toString();
     }
 
+    public void printInColumns() {
+        int count = 0;
+
+        while (count < trake.size()) {
+            StringJoiner joiner = new StringJoiner("\t");
+            boolean isEmptyLine = true;
+            for (Track track : trake) {
+                List<Vehicle> vozila = track.getVozilaUOvojTraci();
+                if (count >= vozila.size()) {
+                    joiner.add(" - ");
+                } else {
+                    joiner.add(String.valueOf(vozila.get(count).vrijemePolaska));
+                    isEmptyLine = false;
+                }
+            }
+            if (isEmptyLine) break;
+            System.out.println(joiner);
+            count++;
+        }
+        System.out.println("-----------------------------------------------------------------------------------------");
+    }
+
     public List<Track> getTrake() {
         return this.trake;
     }
@@ -276,6 +298,7 @@ public class Schedule {
             if (this.tracksBlockedByOtherTracks.contains(track.idTrake)) {
                 List<Integer> blockingTracksForTrack = Demo.data.getBlockingTracksForTrack(track.idTrake);
                 for (Integer blockingTrackId : blockingTracksForTrack) {
+                    System.out.println("Blocking: " + blockingTrackId + " Blocked: " + track.idTrake);
                     Track blockingTrack = trakeSVozilima.stream().filter(track1 -> track1.idTrake == blockingTrackId).findFirst().get();
                     Vehicle lastBlockingVehicle = blockingTrack.getVozilaUOvojTraci().get(blockingTrack.getVozilaUOvojTraci().size() - 1);
                     Vehicle firstVehicleInCurrentTrack = track.getVozilaUOvojTraci().get(0);
@@ -301,7 +324,7 @@ public class Schedule {
         List<Track> tracks = new ArrayList<Track>();
         for (Track track : this.trake) {
             Track tr = new Track(track.idTrake, track.duljinaTrake, track.trakeKojeBlokirajuOvuTraku, track.trakeKojeOvaTrakaBlokira);
-            List<Vehicle> vehicles =  track.getVozilaUOvojTraci();
+            List<Vehicle> vehicles = track.getVozilaUOvojTraci();
             tr.vozilaUOvojTraci = vehicles;
             tracks.add(tr);
         }

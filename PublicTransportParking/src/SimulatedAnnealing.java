@@ -16,8 +16,8 @@ public class SimulatedAnnealing {
         Schedule scheduleCurrent = this.scheduleBest;
         Schedule neighbour = null;
         int index = 0;
-        for (int i = 0; i < 7; i++) {
-            while ((neighbour = swapVehicles(scheduleCurrent)).isInvalid());
+        for (int i = 0; i < 1; i++) {
+            while ((neighbour = swapTracks(scheduleCurrent)).isInvalid());
             double newFitness = neighbour.fitness();
             if (newFitness > fitnessBest) {
                 fitnessBest = newFitness;

@@ -146,7 +146,7 @@ public class Data {
     }
 
     public List<Integer> getBlockingTracksForTrack(int blockedTrackId) {
-        return blokiraneTrake.keySet().stream().filter(t -> blokirajuceTrake.get(t).contains(blockedTrackId)).collect(Collectors.toList());
+        return blokirajuceTrake.keySet().stream().filter(t -> blokirajuceTrake.get(t).contains(blockedTrackId)).collect(Collectors.toList());
     }
 
 }
