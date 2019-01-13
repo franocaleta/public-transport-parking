@@ -317,13 +317,13 @@ public class Schedule {
             }
         }
         if (isFull || isNotSorted || isBlockingInvalid || isSerieInvalid || isAnyTrackNotAllowedForVehicle) {
-            System.out.println("IsFull: " + isFull);
-            System.out.println("isNotSorted: " + isNotSorted);
-            System.out.println("isBlockingInvalid: " + isBlockingInvalid);
-            System.out.println("isSerieInvalid: " + isSerieInvalid);
-            System.out.println("isAnyTrackNotAllowedForVehicle: " + isAnyTrackNotAllowedForVehicle);
-            System.out.println("isBlockingInvalid: " + isBlockingInvalid);
-            this.printInColumns();
+//            System.out.println("IsFull: " + isFull);
+//            System.out.println("isNotSorted: " + isNotSorted);
+//            System.out.println("isBlockingInvalid: " + isBlockingInvalid);
+//            System.out.println("isSerieInvalid: " + isSerieInvalid);
+//            System.out.println("isAnyTrackNotAllowedForVehicle: " + isAnyTrackNotAllowedForVehicle);
+//            System.out.println("isBlockingInvalid: " + isBlockingInvalid);
+//            this.printInColumns();
         }
 
         return isFull || isNotSorted || isBlockingInvalid || isSerieInvalid || isAnyTrackNotAllowedForVehicle || areVehiclesMissing;

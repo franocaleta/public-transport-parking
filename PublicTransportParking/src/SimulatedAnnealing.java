@@ -12,11 +12,11 @@ public class SimulatedAnnealing {
     }
 
     public Schedule run() {
-        System.out.println(this.fitnessBest);
+//        System.out.println(this.fitnessBest);
         Schedule scheduleCurrent = this.scheduleBest;
         Schedule neighbour = null;
         int index = 0;
-        for (int i = 0; i < 1; i++) {
+        for (int i = 0; i < 100; i++) {
             while ((neighbour = swapTracks(scheduleCurrent)).isInvalid());
             double newFitness = neighbour.fitness();
             if (newFitness > fitnessBest) {
@@ -30,8 +30,8 @@ public class SimulatedAnnealing {
 
         }
       //  System.out.println("Index: " + index);
-        System.out.println(scheduleCurrent.fitness());
-        System.out.println(scheduleCurrent.isInvalid());
+//        System.out.println(scheduleCurrent.fitness());
+//        System.out.println(scheduleCurrent.isInvalid());
         return scheduleCurrent;
     }
 
@@ -39,17 +39,15 @@ public class SimulatedAnnealing {
         Random rand = new Random();
         int firstTrackIndex = rand.nextInt(schedule.getTrake().size());
         int secondTrackIndex = rand.nextInt(schedule.getTrake().size());
-        System.out.println("First "+ firstTrackIndex+" Second" + secondTrackIndex);
+//        System.out.println("First "+ firstTrackIndex+" Second" + secondTrackIndex);
         Schedule candidate = schedule.createCopy();
        // candidate.getTrake()
         List<Vehicle> first = schedule.getTrake().get(firstTrackIndex).getVozilaUOvojTraci();
         List<Vehicle> second = schedule.getTrake().get(secondTrackIndex).getVozilaUOvojTraci();
 
         candidate.getTrake().get(firstTrackIndex).vozilaUOvojTraci = second;
-        candidate.getTrake().get(firstTrackIndex).zbrojDuljinaDodanihVozila = second.stream().mapToInt(vehicle -> vehicle.duljinaVozila).sum();
 
         candidate.getTrake().get(secondTrackIndex).vozilaUOvojTraci = first;
-        candidate.getTrake().get(secondTrackIndex).zbrojDuljinaDodanihVozila = first.stream().mapToInt(vehicle -> vehicle.duljinaVozila).sum();
         return candidate;
     }
 
@@ -95,9 +93,6 @@ public class SimulatedAnnealing {
         List<Vehicle> first = schedule.getTrake().get(firstTrackIndex).getVozilaUOvojTraci();
         List<Vehicle> second = schedule.getTrake().get(secondTrackIndex).getVozilaUOvojTraci();
 
-        candidate.getTrake().get(firstTrackIndex).zbrojDuljinaDodanihVozila = second.stream().mapToInt(vehicle -> vehicle.duljinaVozila).sum();
-
-        candidate.getTrake().get(secondTrackIndex).zbrojDuljinaDodanihVozila = first.stream().mapToInt(vehicle -> vehicle.duljinaVozila).sum();
         return candidate;
     }
 }
