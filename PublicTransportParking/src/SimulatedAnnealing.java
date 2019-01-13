@@ -39,9 +39,7 @@ public class SimulatedAnnealing {
         Random rand = new Random();
         int firstTrackIndex = rand.nextInt(schedule.getTrake().size());
         int secondTrackIndex = rand.nextInt(schedule.getTrake().size());
-//        System.out.println("First "+ firstTrackIndex+" Second" + secondTrackIndex);
         Schedule candidate = schedule.createCopy();
-       // candidate.getTrake()
         List<Vehicle> first = schedule.getTrake().get(firstTrackIndex).getVozilaUOvojTraci();
         List<Vehicle> second = schedule.getTrake().get(secondTrackIndex).getVozilaUOvojTraci();
 

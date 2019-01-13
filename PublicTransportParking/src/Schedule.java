@@ -275,8 +275,12 @@ public class Schedule {
         boolean isBlockingInvalid = false;
         boolean isSerieInvalid = false;
         boolean isAnyTrackNotAllowedForVehicle = false;
-        boolean areVehiclesMissing = trakeSVozilima.stream().flatMap(track ->
-                track.getVozilaUOvojTraci().stream()).collect(Collectors.toList()).size() != this.vehicles.size();
+
+        boolean areVehiclesMissing = trakeSVozilima.stream()
+                .flatMap(track -> track.getVozilaUOvojTraci().stream())
+                .collect(Collectors.toList())
+                .size() != this.vehicles.size();
+
         for (Track track : trakeSVozilima) {
             if(track.unusedCapacity() < 0) {
                 isFull = true;
@@ -292,9 +296,9 @@ public class Schedule {
                     isSerieInvalid = true;
                 }
                 
- //               if (!ovo.dozvoljeneTrakeZaParkiranje.contains(track.idTrake) || !sljedece.dozvoljeneTrakeZaParkiranje.contains(track.idTrake)) {
-  //                  isAnyTrackNotAllowedForVehicle = true;
-  //              }
+                if (!ovo.dozvoljeneTrakeZaParkiranje.contains(track.idTrake) || !sljedece.dozvoljeneTrakeZaParkiranje.contains(track.idTrake)) {
+                    isAnyTrackNotAllowedForVehicle = true;
+                }
 
             }
 
@@ -330,13 +334,13 @@ public class Schedule {
     }
 
     public Schedule createCopy() {
-        List<Track> tracks = new ArrayList<Track>();
+        List<Track> tracks = new ArrayList<>();
         for (Track track : this.trake) {
             Track tr = new Track(track.idTrake, track.duljinaTrake, track.trakeKojeBlokirajuOvuTraku, track.trakeKojeOvaTrakaBlokira);
             List<Vehicle> vehicles = track.getVozilaUOvojTraci();
             tr.vozilaUOvojTraci = vehicles;
             tracks.add(tr);
         }
-        return new Schedule(tracks, new ArrayList<>(this.vehicles), this.tracksThatBlockOtherTracks, this.tracksBlockedByOtherTracks, false);
+        return new Schedule(tracks, this.vehicles, this.tracksThatBlockOtherTracks, this.tracksBlockedByOtherTracks, false);
     }
 }
