@@ -278,7 +278,9 @@ public class Schedule {
         boolean areVehiclesMissing = trakeSVozilima.stream().flatMap(track ->
                 track.getVozilaUOvojTraci().stream()).collect(Collectors.toList()).size() != this.vehicles.size();
         for (Track track : trakeSVozilima) {
-            isFull = track.unusedCapacity() < 0;
+            if(track.unusedCapacity() < 0) {
+                isFull = true;
+            }
 
             for (int i = 0; i < track.getVozilaUOvojTraci().size() - 1; i++) {
                 Vehicle ovo = track.getVozilaUOvojTraci().get(i);
@@ -289,9 +291,10 @@ public class Schedule {
                 if (ovo.serijaVozila != sljedece.serijaVozila) {
                     isSerieInvalid = true;
                 }
-                if (!ovo.dozvoljeneTrakeZaParkiranje.contains(track.idTrake) || !sljedece.dozvoljeneTrakeZaParkiranje.contains(track.idTrake)) {
-                    isAnyTrackNotAllowedForVehicle = true;
-                }
+                
+ //               if (!ovo.dozvoljeneTrakeZaParkiranje.contains(track.idTrake) || !sljedece.dozvoljeneTrakeZaParkiranje.contains(track.idTrake)) {
+  //                  isAnyTrackNotAllowedForVehicle = true;
+  //              }
 
             }
 
