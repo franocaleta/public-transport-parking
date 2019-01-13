@@ -298,8 +298,12 @@ public class Schedule {
             if (this.tracksBlockedByOtherTracks.contains(track.idTrake)) {
                 List<Integer> blockingTracksForTrack = Demo.data.getBlockingTracksForTrack(track.idTrake);
                 for (Integer blockingTrackId : blockingTracksForTrack) {
-                    System.out.println("Blocking: " + blockingTrackId + " Blocked: " + track.idTrake);
-                    Track blockingTrack = trakeSVozilima.stream().filter(track1 -> track1.idTrake == blockingTrackId).findFirst().get();
+             //       System.out.println("Blocking: " + blockingTrackId + " Blocked: " + track.idTrake);
+                    Optional<Track> blockingTrackOptional = trakeSVozilima.stream().filter(track1 -> track1.idTrake == blockingTrackId).findFirst();
+                    if(!blockingTrackOptional.isPresent()) {
+                        continue;
+                    }
+                    Track blockingTrack = blockingTrackOptional.get();
                     Vehicle lastBlockingVehicle = blockingTrack.getVozilaUOvojTraci().get(blockingTrack.getVozilaUOvojTraci().size() - 1);
                     Vehicle firstVehicleInCurrentTrack = track.getVozilaUOvojTraci().get(0);
                     if (lastBlockingVehicle.vrijemePolaska > firstVehicleInCurrentTrack.vrijemePolaska) {
@@ -310,11 +314,13 @@ public class Schedule {
             }
         }
         if (isFull || isNotSorted || isBlockingInvalid || isSerieInvalid || isAnyTrackNotAllowedForVehicle) {
-//            System.out.println("IsFull: " + isFull);
-//            System.out.println("isNotSorted: " + isNotSorted);
-//            System.out.println("isBlockingInvalid: " + isBlockingInvalid);
-//            System.out.println("isSerieInvalid: " + isSerieInvalid);
-//            System.out.println("isAnyTrackNotAllowedForVehicle: " + isAnyTrackNotAllowedForVehicle);
+            System.out.println("IsFull: " + isFull);
+            System.out.println("isNotSorted: " + isNotSorted);
+            System.out.println("isBlockingInvalid: " + isBlockingInvalid);
+            System.out.println("isSerieInvalid: " + isSerieInvalid);
+            System.out.println("isAnyTrackNotAllowedForVehicle: " + isAnyTrackNotAllowedForVehicle);
+            System.out.println("isBlockingInvalid: " + isBlockingInvalid);
+            this.printInColumns();
         }
 
         return isFull || isNotSorted || isBlockingInvalid || isSerieInvalid || isAnyTrackNotAllowedForVehicle || areVehiclesMissing;
