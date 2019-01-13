@@ -11,7 +11,6 @@ public class Track {
     public final Set<Integer> trakeKojeOvaTrakaBlokira;
 
     public List<Vehicle> vozilaUOvojTraci;
-    public int zbrojDuljinaDodanihVozila;
 
     public Track(int idTrake,
                  int duljinaTrake,
@@ -61,16 +60,19 @@ public class Track {
             return false;
         }
 
-        zbrojDuljinaDodanihVozila += newVehicle.duljinaVozila;
         return vozilaUOvojTraci.add(newVehicle);
     }
 
     public boolean checkIfTrackAlreadyFull(int duljinaNovogVozila) {
-        return (vozilaUOvojTraci.size() - 1) * 0.5 + zbrojDuljinaDodanihVozila + duljinaNovogVozila > duljinaTrake;
+        return (vozilaUOvojTraci.size() - 1) * 0.5 + zbrojDuljinaDodanihVozila() + duljinaNovogVozila > duljinaTrake;
     }
 
     public List<Vehicle> getVozilaUOvojTraci() {
         return new ArrayList<>(vozilaUOvojTraci);
+    }
+
+    public int zbrojDuljinaDodanihVozila() {
+        return vozilaUOvojTraci.stream().mapToInt(value -> value.duljinaVozila).sum();
     }
 
     public int getVehicleTypeContaining() {
@@ -81,7 +83,7 @@ public class Track {
     }
 
     public double unusedCapacity() {
-        return duljinaTrake - ((vozilaUOvojTraci.size() - 1) * 0.5 + zbrojDuljinaDodanihVozila);
+        return duljinaTrake - ((vozilaUOvojTraci.size() - 1) * 0.5 + zbrojDuljinaDodanihVozila());
     }
 
     public int brojSusjednihParovaUtraciSIstimTipomRasporeda() {
