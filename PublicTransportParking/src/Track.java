@@ -68,7 +68,7 @@ public class Track {
     }
 
     public List<Vehicle> getVozilaUOvojTraci() {
-        return new ArrayList<>(vozilaUOvojTraci);
+        return vozilaUOvojTraci;
     }
 
     public int zbrojDuljinaDodanihVozila() {

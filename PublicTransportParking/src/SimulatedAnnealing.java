@@ -1,5 +1,6 @@
 import java.util.Random;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class SimulatedAnnealing {
 
@@ -14,82 +15,111 @@ public class SimulatedAnnealing {
     public Schedule run() {
 //        System.out.println(this.fitnessBest);
         Schedule scheduleCurrent = this.scheduleBest;
-        Schedule neighbour = null;
-        int index = 0;
-        for (int i = 0; i < 100; i++) {
-            while ((neighbour = swapTracks(scheduleCurrent)).isInvalid());
-            double newFitness = neighbour.fitness();
+        Schedule neighbour1 = null;
+        Schedule neighbour2 = null;
+        Schedule neighbour3 = null;
+        for (int i = 0; i < 10000; i++) {
+            System.out.println(i + " " + scheduleCurrent.fitness());
+
+            while ((neighbour1 = swapTracks(scheduleCurrent)).isInvalid()) ;
+            while ((neighbour2 = reorderTracksByVehiclesScheduleType(scheduleCurrent)).isInvalid()) ;
+            while ((neighbour3 = mergeTwoTracksInOne(scheduleCurrent)).isInvalid()) ;
+
+            Map<Double, Schedule> neighbours = new HashMap<>();
+            neighbours.put(neighbour1.fitness(), neighbour1);
+            neighbours.put(neighbour2.fitness(), neighbour2);
+            neighbours.put(neighbour3.fitness(), neighbour3);
+
+            double newFitness = neighbours.keySet().stream().max(Comparator.comparingDouble(v -> v)).get();
             if (newFitness > fitnessBest) {
                 fitnessBest = newFitness;
-                scheduleCurrent = neighbour;
-                index = i;
-                //          System.out.println(scheduleCurrent.fitness());
+                scheduleCurrent = neighbours.get(fitnessBest);
             }
 
-            // Schedule neighbour = swapTracks(scheduleCurrent);
-
         }
-      //  System.out.println("Index: " + index);
-//        System.out.println(scheduleCurrent.fitness());
-//        System.out.println(scheduleCurrent.isInvalid());
+
         return scheduleCurrent;
     }
 
     public Schedule swapTracks(Schedule schedule) {
-        Random rand = new Random();
-        int firstTrackIndex = rand.nextInt(schedule.getTrake().size());
-        int secondTrackIndex = rand.nextInt(schedule.getTrake().size());
         Schedule candidate = schedule.createCopy();
-        List<Vehicle> first = schedule.getTrake().get(firstTrackIndex).getVozilaUOvojTraci();
-        List<Vehicle> second = schedule.getTrake().get(secondTrackIndex).getVozilaUOvojTraci();
 
-        candidate.getTrake().get(firstTrackIndex).vozilaUOvojTraci = second;
+        Random rand = new Random();
+        int firstTrackIndex = rand.nextInt(candidate.getTrake().size());
+        int secondTrackIndex = rand.nextInt(candidate.getTrake().size());
 
-        candidate.getTrake().get(secondTrackIndex).vozilaUOvojTraci = first;
+        Track firstTrack = candidate.getTrake().get(firstTrackIndex);
+        Track secondTrack = candidate.getTrake().get(secondTrackIndex);
+
+        List<Vehicle> first = firstTrack.vozilaUOvojTraci;
+        List<Vehicle> second = secondTrack.vozilaUOvojTraci;
+
+        List<Vehicle> tmp1 = new ArrayList<>(first);
+        List<Vehicle> tmp2 = new ArrayList<>(second);
+
+        firstTrack.vozilaUOvojTraci.clear();
+        secondTrack.vozilaUOvojTraci.clear();
+
+        firstTrack.vozilaUOvojTraci = tmp2;
+        secondTrack.vozilaUOvojTraci = tmp1;
+
         return candidate;
     }
 
-    public Schedule swapVehicles(Schedule schedule) {
-        Random rand = new Random();
-        int firstTrackIndex = 0;
-        int secondTrackIndex = 0;
-        while(true) {
-            firstTrackIndex = rand.nextInt(schedule.getTrake().size());
-            if (!schedule.getTrake().get(firstTrackIndex).vozilaUOvojTraci.isEmpty())
-                break;
-
-        }
-        while(true) {
-            secondTrackIndex = rand.nextInt(schedule.getTrake().size());
-            if (!schedule.getTrake().get(secondTrackIndex).vozilaUOvojTraci.isEmpty())
-                break;
-
-        }
-        int firstTrackVehicleIndex = rand.nextInt(schedule.getTrake().get(firstTrackIndex).vozilaUOvojTraci.size());
-        int secondTrackVehicleIndex = rand.nextInt(schedule.getTrake().get(secondTrackIndex).vozilaUOvojTraci.size());
-
-        if(firstTrackVehicleIndex == 1 && schedule.getTrake().get(firstTrackIndex).vozilaUOvojTraci.size() == 1) {
-            firstTrackVehicleIndex --;
-        }
-
-        if(secondTrackVehicleIndex == 1 && schedule.getTrake().get(secondTrackIndex).vozilaUOvojTraci.size() == 1) {
-            secondTrackVehicleIndex --;
-        }
-
-
+    public Schedule reorderTracksByVehiclesScheduleType(Schedule schedule) {
         Schedule candidate = schedule.createCopy();
-        Vehicle firstVehicle = candidate.getTrake().get(firstTrackIndex).vozilaUOvojTraci.get(firstTrackVehicleIndex);
-        Vehicle secondVehicle = candidate.getTrake().get(secondTrackIndex).vozilaUOvojTraci.get(secondTrackVehicleIndex);
-        // candidate.getTrake()
 
-        candidate.getTrake().get(firstTrackIndex).vozilaUOvojTraci.remove(firstTrackVehicleIndex);
-        candidate.getTrake().get(secondTrackIndex).vozilaUOvojTraci.remove(secondTrackVehicleIndex);
+        Random rand = new Random();
+        int firstTrackIndex = rand.nextInt(candidate.getTrake().size());
+        int secondTrackIndex = rand.nextInt(candidate.getTrake().size());
 
-        candidate.getTrake().get(firstTrackIndex).vozilaUOvojTraci.add(firstTrackVehicleIndex, secondVehicle);
-        candidate.getTrake().get(secondTrackIndex).vozilaUOvojTraci.add(secondTrackVehicleIndex, firstVehicle);
+        Track firstTrack = candidate.getTrake().get(firstTrackIndex);
+        Track secondTrack = candidate.getTrake().get(secondTrackIndex);
 
-        List<Vehicle> first = schedule.getTrake().get(firstTrackIndex).getVozilaUOvojTraci();
-        List<Vehicle> second = schedule.getTrake().get(secondTrackIndex).getVozilaUOvojTraci();
+        List<Vehicle> obeTrake = firstTrack.vozilaUOvojTraci;
+        obeTrake.addAll(secondTrack.vozilaUOvojTraci);
+
+        List<Vehicle> poTipuRasporedaPoVremenu = obeTrake.stream()
+                .sorted(Comparator.comparingInt(v -> v.tipRasporeda))
+                .sorted(Comparator.comparingInt(v -> v.vrijemePolaska))
+                .collect(Collectors.toList());
+
+        firstTrack.vozilaUOvojTraci.clear();
+        secondTrack.vozilaUOvojTraci.clear();
+
+        for (Vehicle vehicle : poTipuRasporedaPoVremenu) {
+            if (!firstTrack.addVehicle(vehicle)) {
+                secondTrack.addVehicle(vehicle);
+            }
+        }
+
+        return candidate;
+    }
+
+    public Schedule mergeTwoTracksInOne(Schedule schedule) {
+        Schedule candidate = schedule.createCopy();
+
+        Random rand = new Random();
+        int firstTrackIndex = rand.nextInt(candidate.getTrake().size());
+        int secondTrackIndex = rand.nextInt(candidate.getTrake().size());
+
+        Track firstTrack = candidate.getTrake().get(firstTrackIndex);
+        Track secondTrack = candidate.getTrake().get(secondTrackIndex);
+
+        List<Vehicle> obeTrake = firstTrack.vozilaUOvojTraci;
+        obeTrake.addAll(secondTrack.vozilaUOvojTraci);
+
+        List<Vehicle> poTipuRasporedaPoVremenu = obeTrake.stream()
+//                .sorted(Comparator.comparingInt(v -> v.tipRasporeda)) mozda staviti, mozda ne?
+                .sorted(Comparator.comparingInt(v -> v.vrijemePolaska))
+                .collect(Collectors.toList());
+
+        firstTrack.vozilaUOvojTraci.clear();
+        secondTrack.vozilaUOvojTraci.clear();
+
+        for (Vehicle vehicle : poTipuRasporedaPoVremenu) {
+            firstTrack.addVehicle(vehicle);
+        }
 
         return candidate;
     }
