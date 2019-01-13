@@ -39,9 +39,8 @@ public class Demo {
         }
 //        sce.printInColumns();
         sce.debbugFunkcije();
+        System.out.println("===============================");
         sce.printScheduleToFile("rjesenje");
-
-        System.out.println("=====================================================");
 
         SimulatedAnnealing simulatedAnnealing = new SimulatedAnnealing(sce);
         Schedule best = simulatedAnnealing.run();

@@ -276,6 +276,7 @@ public class Schedule {
         boolean isSerieInvalid = false;
         boolean isAnyTrackNotAllowedForVehicle = false;
 
+
         boolean areThereDuplicateVehicles = trakeSVozilima.stream()
                 .flatMap(track -> track.getVozilaUOvojTraci().stream())
                 .mapToInt(vehicle -> vehicle.idVozila)
@@ -287,7 +288,7 @@ public class Schedule {
                 .size() != this.vehicles.size();
 
         for (Track track : trakeSVozilima) {
-            if (track.unusedCapacity() < 0) {
+            if(track.unusedCapacity() < 0) {
                 isFull = true;
             }
 
@@ -300,7 +301,7 @@ public class Schedule {
                 if (ovo.serijaVozila != sljedece.serijaVozila) {
                     isSerieInvalid = true;
                 }
-
+                
                 if (!ovo.dozvoljeneTrakeZaParkiranje.contains(track.idTrake) || !sljedece.dozvoljeneTrakeZaParkiranje.contains(track.idTrake)) {
                     isAnyTrackNotAllowedForVehicle = true;
                 }
@@ -310,9 +311,9 @@ public class Schedule {
             if (this.tracksBlockedByOtherTracks.contains(track.idTrake)) {
                 List<Integer> blockingTracksForTrack = Demo.data.getBlockingTracksForTrack(track.idTrake);
                 for (Integer blockingTrackId : blockingTracksForTrack) {
-                    //       System.out.println("Blocking: " + blockingTrackId + " Blocked: " + track.idTrake);
+             //       System.out.println("Blocking: " + blockingTrackId + " Blocked: " + track.idTrake);
                     Optional<Track> blockingTrackOptional = trakeSVozilima.stream().filter(track1 -> track1.idTrake == blockingTrackId).findFirst();
-                    if (!blockingTrackOptional.isPresent()) {
+                    if(!blockingTrackOptional.isPresent()) {
                         continue;
                     }
                     Track blockingTrack = blockingTrackOptional.get();
@@ -335,13 +336,7 @@ public class Schedule {
 //            this.printInColumns();
         }
 
-        return areThereDuplicateVehicles ||
-                isFull ||
-                isNotSorted ||
-                isBlockingInvalid ||
-                isSerieInvalid ||
-                isAnyTrackNotAllowedForVehicle ||
-                areVehiclesMissing;
+        return areThereDuplicateVehicles | isFull || isNotSorted || isBlockingInvalid || isSerieInvalid || isAnyTrackNotAllowedForVehicle || areVehiclesMissing;
     }
 
     public Schedule createCopy() {

@@ -15,54 +15,38 @@ public class SimulatedAnnealing {
     public Schedule run() {
 //        System.out.println(this.fitnessBest);
         Schedule scheduleCurrent = this.scheduleBest;
-        Schedule neighbour1 = null;
-        Schedule neighbour2 = null;
-        Schedule neighbour3 = null;
+        Schedule neighbour = null;
+        int index = 0;
         for (int i = 0; i < 10000; i++) {
-            System.out.println(i + " " + scheduleCurrent.fitness());
-
-            while ((neighbour1 = swapTracks(scheduleCurrent)).isInvalid()) ;
-            while ((neighbour2 = reorderTracksByVehiclesScheduleType(scheduleCurrent)).isInvalid()) ;
-            while ((neighbour3 = mergeTwoTracksInOne(scheduleCurrent)).isInvalid()) ;
-
-            Map<Double, Schedule> neighbours = new HashMap<>();
-            neighbours.put(neighbour1.fitness(), neighbour1);
-            neighbours.put(neighbour2.fitness(), neighbour2);
-            neighbours.put(neighbour3.fitness(), neighbour3);
-
-            double newFitness = neighbours.keySet().stream().max(Comparator.comparingDouble(v -> v)).get();
+            while ((neighbour = reorderTracksByVehiclesScheduleType(scheduleCurrent)).isInvalid());
+            double newFitness = neighbour.fitness();
             if (newFitness > fitnessBest) {
                 fitnessBest = newFitness;
-                scheduleCurrent = neighbours.get(fitnessBest);
+                scheduleCurrent = neighbour;
+                index = i;
+                //          System.out.println(scheduleCurrent.fitness());
             }
 
-        }
+            // Schedule neighbour = swapTracks(scheduleCurrent);
 
+        }
+      //  System.out.println("Index: " + index);
+//        System.out.println(scheduleCurrent.fitness());
+//        System.out.println(scheduleCurrent.isInvalid());
         return scheduleCurrent;
     }
 
     public Schedule swapTracks(Schedule schedule) {
-        Schedule candidate = schedule.createCopy();
-
         Random rand = new Random();
-        int firstTrackIndex = rand.nextInt(candidate.getTrake().size());
-        int secondTrackIndex = rand.nextInt(candidate.getTrake().size());
+        int firstTrackIndex = rand.nextInt(schedule.getTrake().size());
+        int secondTrackIndex = rand.nextInt(schedule.getTrake().size());
+        Schedule candidate = schedule.createCopy();
+        List<Vehicle> first = schedule.getTrake().get(firstTrackIndex).getVozilaUOvojTraci();
+        List<Vehicle> second = schedule.getTrake().get(secondTrackIndex).getVozilaUOvojTraci();
 
-        Track firstTrack = candidate.getTrake().get(firstTrackIndex);
-        Track secondTrack = candidate.getTrake().get(secondTrackIndex);
+        candidate.getTrake().get(firstTrackIndex).vozilaUOvojTraci = second;
 
-        List<Vehicle> first = firstTrack.vozilaUOvojTraci;
-        List<Vehicle> second = secondTrack.vozilaUOvojTraci;
-
-        List<Vehicle> tmp1 = new ArrayList<>(first);
-        List<Vehicle> tmp2 = new ArrayList<>(second);
-
-        firstTrack.vozilaUOvojTraci.clear();
-        secondTrack.vozilaUOvojTraci.clear();
-
-        firstTrack.vozilaUOvojTraci = tmp2;
-        secondTrack.vozilaUOvojTraci = tmp1;
-
+        candidate.getTrake().get(secondTrackIndex).vozilaUOvojTraci = first;
         return candidate;
     }
 
