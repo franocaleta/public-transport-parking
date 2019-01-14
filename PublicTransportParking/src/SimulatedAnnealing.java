@@ -14,17 +14,20 @@ public class SimulatedAnnealing {
     }
 
     public Schedule run() {
+        int min5 = 5;
+        boolean min5Done = false;
+        long start = System.currentTimeMillis();
 //        System.out.println(this.fitnessBest);
         Schedule scheduleCurrent = this.scheduleBest;
         Schedule neighbour = null;
         //Debugging
         int numberOfAnnealings = 0;
         Random rand = new Random();
-        int numberOfIterations = 1000000;
+        int numberOfIterations = 4000000;
         int before = 0;
         int after = 0;
-        for(int i = 0; i < 1000; i++) {
-            while ((neighbour = mergeTwoTracksInOne(scheduleCurrent)).isInvalid());
+        for (int i = 0; i < 1000; i++) {
+            while ((neighbour = mergeTwoTracksInOne(scheduleCurrent)).isInvalid()) ;
             double newFitness = neighbour.fitness();
             if (newFitness >= this.scheduleBest.fitness()) {
                 scheduleBest = neighbour;
@@ -34,36 +37,37 @@ public class SimulatedAnnealing {
         }
         scheduleCurrent = scheduleBest;
         for (int i = 1; i < numberOfIterations; i++) {
-            if(new Random().nextDouble() < 0.3) {
-                while ((neighbour = swapTracks(scheduleCurrent)).isInvalid());
-            }
-            else {
-                while ((neighbour = reorderTracksByVehiclesScheduleType(scheduleCurrent)).isInvalid());
+            if (new Random().nextDouble() < 0.3) {
+                while ((neighbour = swapTracks(scheduleCurrent)).isInvalid()) ;
+            } else {
+                while ((neighbour = reorderTracksByVehiclesScheduleType(scheduleCurrent)).isInvalid()) ;
             }
 
             double newFitness = neighbour.fitness();
             if (newFitness >= this.scheduleBest.fitness()) {
-     //           fitnessBest = newFitness;
+                //           fitnessBest = newFitness;
                 scheduleBest = neighbour;
                 scheduleCurrent = neighbour;
                 //          System.out.println(scheduleCurrent.fitness());
-            }
-            else {
+            } else if (newFitness >= scheduleCurrent.fitness()) {
+                scheduleCurrent = neighbour;
+            } else {
 
                 double diff = scheduleCurrent.fitness() - neighbour.fitness();
-                if(diff > 0) {
-                    diff *=  -1;
+                if (diff > 0) {
+                    diff *= -1;
                     diff *= numberOfIterations;
                     double T = i;
                     double expression = diff / T;
                     double exp = Math.pow(E, expression);
 
                     double random = rand.nextDouble();
-               //    System.out.println("Random : "+ random +  " Exp: "+ exp + " Diff: "+ diff +" i:" + i + "Expression: " + expression);
-                    if(Math.abs(random) < exp) {
-                        if(i < numberOfIterations / 2) {
+                    //          System.out.println("Random : "+ random +  " Exp: "+ exp + " Diff: "+ diff +" i:" + i + "Expression: " + expression);
+                    if (Math.abs(random) < exp) {
+                        if (i < numberOfIterations / 2) {
+                            //                System.out.println("i :" + i+"  Exp:" + exp+ " Random: "+ random);
                             before++;
-                        }else {
+                        } else {
                             after++;
                         }
                         numberOfAnnealings++;
@@ -72,16 +76,24 @@ public class SimulatedAnnealing {
                 }
 
             }
-            if(scheduleCurrent.fitness() > this.scheduleBest.fitness()) {
+            if (scheduleCurrent.fitness() > this.scheduleBest.fitness()) {
                 fitnessBest = scheduleCurrent.fitness();
                 scheduleBest = scheduleCurrent;
             }
             // Schedule neighbour = swapTracks(scheduleCurrent);
-
+            long temp = System.currentTimeMillis();
+            if((temp - start) / 1000 > 300 && !min5Done) {
+                scheduleBest.printScheduleToFile("best5min");
+                System.out.println(i);
+                min5Done = true;
+            }
         }
         System.out.println("numberOfAnnealings: " + numberOfAnnealings);
         System.out.println("before: " + before);
         System.out.println("after: " + after);
+        long end = System.currentTimeMillis();
+
+        System.out.println("Time elapsed: " + (end - start) / 1000);
 //        System.out.println(scheduleCurrent.fitness());
 //        System.out.println(scheduleCurrent.isInvalid());
         return this.scheduleBest;
@@ -105,16 +117,16 @@ public class SimulatedAnnealing {
         firstTrack.vozilaUOvojTraci.clear();
         secondTrack.vozilaUOvojTraci.clear();
 
-        for(Vehicle v1 : tmp1) {
+        for (Vehicle v1 : tmp1) {
             second.add(v1);
         }
 
-        for(Vehicle v2 : tmp2) {
+        for (Vehicle v2 : tmp2) {
             first.add(v2);
         }
 
-       // firstTrack.vozilaUOvojTraci = tmp2;
-       // secondTrack.vozilaUOvojTraci = tmp1;
+        // firstTrack.vozilaUOvojTraci = tmp2;
+        // secondTrack.vozilaUOvojTraci = tmp1;
         return candidate;
     }
 
