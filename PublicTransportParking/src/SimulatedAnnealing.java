@@ -20,28 +20,68 @@ public class SimulatedAnnealing {
         //Debugging
         int numberOfAnnealings = 0;
         Random rand = new Random();
-        int numberOfIterations = 10000;
-        for (int i = 1; i < numberOfIterations; i++) {
-            while ((neighbour = reorderTracksByVehiclesScheduleType(scheduleCurrent)).isInvalid());
+        int numberOfIterations = 1000000;
+        int before = 0;
+        int after = 0;
+        for(int i = 0; i < 1000; i++) {
+            while ((neighbour = mergeTwoTracksInOne(scheduleCurrent)).isInvalid());
             double newFitness = neighbour.fitness();
-            if (newFitness > fitnessBest) {
-                fitnessBest = newFitness;
+            if (newFitness >= this.scheduleBest.fitness()) {
+                scheduleBest = neighbour;
+                scheduleCurrent = neighbour;
+                //          System.out.println(scheduleCurrent.fitness());
+            }
+        }
+        scheduleCurrent = scheduleBest;
+        for (int i = 1; i < numberOfIterations; i++) {
+            if(new Random().nextDouble() < 0.3) {
+                while ((neighbour = swapTracks(scheduleCurrent)).isInvalid());
+            }
+            else {
+                while ((neighbour = reorderTracksByVehiclesScheduleType(scheduleCurrent)).isInvalid());
+            }
+
+            double newFitness = neighbour.fitness();
+            if (newFitness >= this.scheduleBest.fitness()) {
+     //           fitnessBest = newFitness;
                 scheduleBest = neighbour;
                 scheduleCurrent = neighbour;
                 //          System.out.println(scheduleCurrent.fitness());
             }
             else {
+
                 double diff = scheduleCurrent.fitness() - neighbour.fitness();
-                double exp = Math.pow(E, (-diff) / (i * 1000));
-                if(rand.nextDouble() < exp) {
-                    numberOfAnnealings++;
-                    scheduleCurrent = neighbour;
+                if(diff > 0) {
+                    diff *=  -1;
+                    diff *= numberOfIterations;
+                    double T = i;
+                    double expression = diff / T;
+                    double exp = Math.pow(E, expression);
+
+                    double random = rand.nextDouble();
+               //    System.out.println("Random : "+ random +  " Exp: "+ exp + " Diff: "+ diff +" i:" + i + "Expression: " + expression);
+                    if(Math.abs(random) < exp) {
+                        if(i < numberOfIterations / 2) {
+                            before++;
+                        }else {
+                            after++;
+                        }
+                        numberOfAnnealings++;
+                        scheduleCurrent = neighbour;
+                    }
                 }
+
+            }
+            if(scheduleCurrent.fitness() > this.scheduleBest.fitness()) {
+                fitnessBest = scheduleCurrent.fitness();
+                scheduleBest = scheduleCurrent;
             }
             // Schedule neighbour = swapTracks(scheduleCurrent);
 
         }
         System.out.println("numberOfAnnealings: " + numberOfAnnealings);
+        System.out.println("before: " + before);
+        System.out.println("after: " + after);
 //        System.out.println(scheduleCurrent.fitness());
 //        System.out.println(scheduleCurrent.isInvalid());
         return this.scheduleBest;

@@ -6,7 +6,7 @@ public class Demo {
     public static Data data;
 
     public static void main(String[] args) {
-        data = new Data("instanca3.txt");
+        data = new Data("instanca1.txt");
 
         List<Schedule> pocetneJedinke = new ArrayList<>();
 
