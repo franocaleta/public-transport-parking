@@ -308,6 +308,12 @@ public class Schedule {
 
             }
 
+            for(Vehicle v : track.getVozilaUOvojTraci()) {
+                if(!v.dozvoljeneTrakeZaParkiranje.contains(track.idTrake)) {
+                    isAnyTrackNotAllowedForVehicle = true;
+                }
+            }
+
             if (this.tracksBlockedByOtherTracks.contains(track.idTrake)) {
                 List<Integer> blockingTracksForTrack = Demo.data.getBlockingTracksForTrack(track.idTrake);
                 for (Integer blockingTrackId : blockingTracksForTrack) {
