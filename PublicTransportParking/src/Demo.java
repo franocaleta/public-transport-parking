@@ -39,7 +39,7 @@ public class Demo {
         }
 //        sce.printInColumns();
         sce.debbugFunkcije();
-        System.out.println("===============================");
+        System.out.println("==============================="); 
         sce.printScheduleToFile("rjesenje");
 
         SimulatedAnnealing simulatedAnnealing = new SimulatedAnnealing(sce);
