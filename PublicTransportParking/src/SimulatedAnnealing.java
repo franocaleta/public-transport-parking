@@ -1,3 +1,5 @@
+import java.math.RoundingMode;
+import java.text.DecimalFormat;
 import java.util.Random;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -14,6 +16,9 @@ public class SimulatedAnnealing {
     }
 
     public Schedule run() {
+        DecimalFormat df = new DecimalFormat("#.###");
+        df.setRoundingMode(RoundingMode.HALF_UP);
+
         boolean min1Done = false;
         boolean min5Done = false;
         long start = System.currentTimeMillis();
@@ -82,16 +87,22 @@ public class SimulatedAnnealing {
             }
             // Schedule neighbour = swapTracks(scheduleCurrent);
             long temp = System.currentTimeMillis();
-            if((temp - start) / 1000 > 300 && !min5Done) {
-                scheduleBest.printScheduleToFile("best5min" + i + "-" + scheduleBest.fitness());
-//                System.out.println(i);
-                min5Done = true;
-            }else if((temp - start) / 1000 > 60 && !min1Done) {
-                scheduleBest.printScheduleToFile("best1min" + i + "-" + scheduleBest.fitness());
-//                System.out.println(i);
+
+            if ((temp - start) / 1000 > 60 && !min1Done) {
+                String fileName = "inst" + Demo.ins + "/" + df.format(scheduleBest.fitness()) + "-" + i + "-" + "1min - inst" + Demo.ins;
+                scheduleBest.printScheduleToFile(fileName);
+                System.out.println(i);
                 min1Done = true;
-            }else if (i == numberOfIterations - 1){
-                scheduleBest.printScheduleToFile("bestTotal" + i + "-" + scheduleBest.fitness());
+                return scheduleBest;
+            } else if ((temp - start) / 1000 > 300 && !min5Done) {
+                String fileName = "inst" + Demo.ins + "/" + df.format(scheduleBest.fitness())
+                        + "-" + i + "-" + "5min - inst" + Demo.ins;
+                scheduleBest.printScheduleToFile(fileName);
+                System.out.println(i);
+                min5Done = true;
+            } else if (i == numberOfIterations - 1) {
+                String fileName = "inst" + Demo.ins + "/" + df.format(scheduleBest.fitness()) + "-" + i + "-" + "end - inst" + Demo.ins;
+                scheduleBest.printScheduleToFile(fileName);
             }
         }
         System.out.println("numberOfAnnealings: " + numberOfAnnealings);
