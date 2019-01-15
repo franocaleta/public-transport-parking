@@ -14,7 +14,7 @@ public class SimulatedAnnealing {
     }
 
     public Schedule run() {
-        int min5 = 5;
+        boolean min1Done = false;
         boolean min5Done = false;
         long start = System.currentTimeMillis();
 //        System.out.println(this.fitnessBest);
@@ -83,9 +83,15 @@ public class SimulatedAnnealing {
             // Schedule neighbour = swapTracks(scheduleCurrent);
             long temp = System.currentTimeMillis();
             if((temp - start) / 1000 > 300 && !min5Done) {
-                scheduleBest.printScheduleToFile("best5min");
-                System.out.println(i);
+                scheduleBest.printScheduleToFile("best5min" + i + "-" + scheduleBest.fitness());
+//                System.out.println(i);
                 min5Done = true;
+            }else if((temp - start) / 1000 > 60 && !min1Done) {
+                scheduleBest.printScheduleToFile("best1min" + i + "-" + scheduleBest.fitness());
+//                System.out.println(i);
+                min1Done = true;
+            }else if (i == numberOfIterations - 1){
+                scheduleBest.printScheduleToFile("bestTotal" + i + "-" + scheduleBest.fitness());
             }
         }
         System.out.println("numberOfAnnealings: " + numberOfAnnealings);

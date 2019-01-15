@@ -44,7 +44,7 @@ public class Demo {
 
         SimulatedAnnealing simulatedAnnealing = new SimulatedAnnealing(sce);
         Schedule best = simulatedAnnealing.run();
-        System.out.println(best.isInvalid());
+//        System.out.println(best.isInvalid());
 
         best.printScheduleToFile("best");
 //        best.printInColumns();
