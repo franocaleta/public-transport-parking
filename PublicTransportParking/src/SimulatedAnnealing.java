@@ -22,7 +22,7 @@ public class SimulatedAnnealing {
         Random rand = new Random();
         int numberOfIterations = 10000;
         for (int i = 1; i < numberOfIterations; i++) {
-            while ((neighbour = reorderTracksByVehiclesScheduleType(scheduleCurrent)).isInvalid());
+            while ((neighbour = swapTracks(scheduleCurrent)).isInvalid());
             double newFitness = neighbour.fitness();
             if (newFitness > fitnessBest) {
                 fitnessBest = newFitness;

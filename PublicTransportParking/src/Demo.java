@@ -6,7 +6,7 @@ public class Demo {
     public static Data data;
 
     public static void main(String[] args) {
-        data = new Data("instanca3.txt");
+        data = new Data("instanca1.txt");
 
         List<Schedule> pocetneJedinke = new ArrayList<>();
 
@@ -39,12 +39,11 @@ public class Demo {
         }
 //        sce.printInColumns();
         sce.debbugFunkcije();
-        System.out.println("==============================="); 
+        System.out.println("===============================");
         sce.printScheduleToFile("rjesenje");
 
-        SimulatedAnnealing simulatedAnnealing = new SimulatedAnnealing(sce);
-        Schedule best = simulatedAnnealing.run();
-        System.out.println(best.isInvalid());
+        Tabu tabu = new Tabu(sce);
+        Schedule best = tabu.run(1000, 50, false);
 
         best.printScheduleToFile("best");
 //        best.printInColumns();
