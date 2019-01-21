@@ -16,13 +16,8 @@ public class SimulatedAnnealing {
     }
 
     public Schedule run() {
-        DecimalFormat df = new DecimalFormat("#.###");
-        df.setRoundingMode(RoundingMode.HALF_UP);
+        int lessOrEqualCount = 0;
 
-        boolean min1Done = false;
-        boolean min5Done = false;
-        long start = System.currentTimeMillis();
-//        System.out.println(this.fitnessBest);
         Schedule scheduleCurrent = this.scheduleBest;
         Schedule neighbour = null;
         //Debugging
@@ -84,35 +79,17 @@ public class SimulatedAnnealing {
             if (scheduleCurrent.fitness() > this.scheduleBest.fitness()) {
                 fitnessBest = scheduleCurrent.fitness();
                 scheduleBest = scheduleCurrent;
-            }
-            // Schedule neighbour = swapTracks(scheduleCurrent);
-            long temp = System.currentTimeMillis();
-
-            if ((temp - start) / 1000 > 60 && !min1Done) {
-                String fileName = "inst" + Demo.ins + "/" + df.format(scheduleBest.fitness()) + "-" + i + "-" + "1min - inst" + Demo.ins;
-                scheduleBest.printScheduleToFile(fileName);
-                System.out.println(i);
-                min1Done = true;
-                return scheduleBest;
-            } else if ((temp - start) / 1000 > 300 && !min5Done) {
-                String fileName = "inst" + Demo.ins + "/" + df.format(scheduleBest.fitness())
-                        + "-" + i + "-" + "5min - inst" + Demo.ins;
-                scheduleBest.printScheduleToFile(fileName);
-                System.out.println(i);
-                min5Done = true;
-            } else if (i == numberOfIterations - 1) {
-                String fileName = "inst" + Demo.ins + "/" + df.format(scheduleBest.fitness()) + "-" + i + "-" + "end - inst" + Demo.ins;
-                scheduleBest.printScheduleToFile(fileName);
+                lessOrEqualCount = 0;
+            }else {
+                if (lessOrEqualCount < 100000){
+                    lessOrEqualCount++;
+                }else {
+                    Demo.brojIteracija += i;
+                    return this.scheduleBest;
+                }
             }
         }
-        System.out.println("numberOfAnnealings: " + numberOfAnnealings);
-        System.out.println("before: " + before);
-        System.out.println("after: " + after);
-        long end = System.currentTimeMillis();
 
-        System.out.println("Time elapsed: " + (end - start) / 1000);
-//        System.out.println(scheduleCurrent.fitness());
-//        System.out.println(scheduleCurrent.isInvalid());
         return this.scheduleBest;
     }
 

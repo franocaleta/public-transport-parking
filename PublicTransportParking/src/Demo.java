@@ -1,18 +1,28 @@
+import java.math.RoundingMode;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
 public class Demo {
 
     public static Data data;
-    public static String ins = "1";
+    public static String ins = "instanca1";
+
+    public static int brojIteracija = 0;
 
     public static void main(String[] args) {
-        for (int i = 0; i < 1000; i++) {
-            ins = String.valueOf(i % 3 + 1);
-            data = new Data("instanca" + ins + ".txt");
+        DecimalFormat df = new DecimalFormat("#.###");
+        df.setRoundingMode(RoundingMode.HALF_UP);
+
+        Schedule currentBest = null;
+        boolean min1Done = false;
+        boolean min5Done = false;
+        long startTime = System.currentTimeMillis();
+
+        for (int i = 0; i < Integer.MAX_VALUE; i++) {
+            data = new Data(ins + ".txt");
 
             List<Schedule> pocetneJedinke = new ArrayList<>();
-
             while (pocetneJedinke.size() < 40) {
                 try {
                     Schedule schedule = new Schedule(
@@ -31,7 +41,6 @@ public class Demo {
 
             }
 
-
             double fitnessMax = 0.0;
             Schedule sce = null;
             for (Schedule sc : pocetneJedinke) {
@@ -40,18 +49,35 @@ public class Demo {
                     sce = sc;
                 }
             }
-//        sce.printInColumns();
-            sce.debbugFunkcije();
-            System.out.println("===============================");
-//        sce.printScheduleToFile("rjesenje");
+
+            if (currentBest == null){
+                currentBest = sce;
+            }
 
             SimulatedAnnealing simulatedAnnealing = new SimulatedAnnealing(sce);
             Schedule best = simulatedAnnealing.run();
-//        System.out.println(best.isInvalid());
 
-//        best.printScheduleToFile("best");
-//        best.printInColumns();
-            best.debbugFunkcije();
+            if (best.fitness() > currentBest.fitness()){
+                currentBest = best;
+                String fileName = "rjesenja/" + df.format(currentBest.fitness()) + "-" + brojIteracija + "-" + ins;
+                currentBest.printScheduleToFile(fileName);
+            }
+
+
+            //----------------------- ispisi za 1,5,n ------------------------
+
+            long currentTime = System.currentTimeMillis();
+            if ((currentTime - startTime) / 1000 > 60 && !min1Done){
+                min1Done = true;
+                String fileName = "min1/" + df.format(currentBest.fitness()) + "-" + brojIteracija + "-" + ins;
+                currentBest.printScheduleToFile(fileName);
+            }else if ((currentTime - startTime) / 1000 > 300 && !min5Done){
+                min5Done = true;
+                String fileName = "min5/" + df.format(currentBest.fitness()) + "-" + brojIteracija + "-" + ins;
+                currentBest.printScheduleToFile(fileName);
+            }
+
+            System.out.println(i);
         }
     }
 }
